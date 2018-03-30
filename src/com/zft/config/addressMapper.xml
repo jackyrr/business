@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.zft.entity.Address">
+
+ 	<!-- 查询总的记录数 -->
+ 	<select id="findAllCount" resultType="int">
+ 		select count(id) from address
+ 	</select>
+ 	
+ 	<!-- 分页查询所有地址列表 -->
+ 	<select id="findUserAddress" parameterType="java.util.Map" resultType="Address">
+ 		select id,receiver_name,receiver_phone,receiver_mobile,receiver_province,receiver_city,
+ 		receiver_district,receiver_address,receiver_zip,create_time,update_time from address where user_id = #{userid} limit #{offset},#{pageSize}
+ 	</select>
+ 	
+	<!--  add address to database  -->
+ 	<insert id="addAddress" parameterType="java.util.Map">
+		insert into address (user_id,receiver_name,receiver_phone,receiver_mobile,receiver_province,receiver_city,receiver_district,receiver_address,receiver_zip,create_time,update_time)
+		values(#{userid},#{address.receiver_name},#{address.receiver_phone},#{address.receiver_mobile},#{address.receiver_province},#{address.receiver_city},#{address.receiver_district},#{address.receiver_address},#{address.receiver_zip},now(),now())
+		<selectKey resultType="int" keyProperty="id">
+			select last_insert_id()
+		</selectKey>
+	</insert> 
+	
+	<delete id="deleteAddressByUserid" parameterType="java.util.Map">
+		delete from address where user_id= #{userid} and id = #{id} 
+	</delete>	
+	
+	<!-- 修改地址 -->
+	<update id="updateUserAddressByUserid" parameterType="java.util.Map">
+		update address set receiver_name = #{address.receiver_name},receiver_phone = #{address.receiver_phone},receiver_mobile = #{address.receiver_mobile},receiver_province = #{address.receiver_province},
+		receiver_city = #{address.receiver_city},receiver_district = #{address.receiver_district},receiver_address = #{address.receiver_address},receiver_zip = #{address.receiver_zip},update_time = now()
+		where user_id=#{userid} and	id=#{id}
+	</update>
+	
+	<!-- 查询某个地址根据用户ID和ID -->
+	<select id="findOneAddress" parameterType="java.util.Map" resultType="Address">
+		select id,receiver_name,receiver_phone,receiver_mobile,receiver_province,receiver_city,
+ 		receiver_district,receiver_address,receiver_zip,create_time,update_time from address where user_id=#{userid} and id=#{id}
+	</select>
+	
+	<!-- 根据ID查询地址 -->
+	<select id="findOneAddressById" parameterType="int" resultType="Address">
+		select id,receiver_name,receiver_phone,receiver_mobile,receiver_province,receiver_city,
+ 		receiver_district,receiver_address,receiver_zip,create_time,update_time from address where id=#{id}
+	</select>
+	
+</mapper>

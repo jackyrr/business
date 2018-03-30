@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zft.entity.UserOrder">
+
+	<!-- 添加订单 -->
+	<insert id="addUserOrder" parameterType="UserOrder" >       
+			insert into userorder 
+			(order_no,user_id,shipping_id,payment,payment_type,postage,status,create_time,update_time)
+			 values(#{order_no},#{user_id},#{shipping_id},#{payment},#{payment_type},#{postage},#{status},now(),now())
+	</insert>
+	
+	
+	<!-- 分页查询订单 -->
+	
+	<select id="findTotalCount" parameterType="int" resultType="int">
+		select count(oid) from userorder where user_id = #{user_id}
+	</select>
+	
+	
+	<select id="findUserOrderByPage" parameterType="map" resultType="UserOrder" >
+		
+		select oid,order_no,user_id,shipping_id,payment,payment_type,postage,status,create_time,update_time
+		from userorder
+		where user_id = #{user_id} 
+		limit #{offset},#{pageSize}
+	</select>
+	
+	
+	<!-- 根据订单号查询订单详情 -->
+	<select id="findAllUserOrderItems" parameterType="long" resultType="UserOrderItems">
+		select *from userorderitem where order_no = #{order_no}
+	</select>
+	
+	
+	<!-- 根据订单号查询订单 -->
+	
+	<select id="findUserOrderDetailByOrderNo" parameterType="long" resultType="UserOrder">
+		select *from userorder where order_no = #{order_no}
+	</select>
+	
+	
+	<!-- updateOrderStatusByOrderNo修改订单状态 -->
+	<update id="updateOrderStatusByOrderNo" parameterType="map">
+		update userorder set status = #{status} where order_no = #{order_no} 
+	</update>
+	
+</mapper>

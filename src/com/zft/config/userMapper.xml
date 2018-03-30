@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+
+<mapper namespace="com.zft.entity.User">
+
+  <select id="checkUserName"  parameterType="java.lang.String"  resultType="java.lang.Integer">
+  	  
+  	  select count(username) from user where username = #{username}
+  	  
+  </select>
+  
+  <select id="findUserByUsernameAndPassword" parameterType="java.util.Map" resultType="com.zft.entity.User">
+  
+  	select id,username,password from user where username=#{username} and password=#{password}
+  	
+  </select>
+	
+	
+	
+  <select id="findAllUser" resultType="User">
+  	select id,username,email,phone,question,answer,role,create_time,update_time from user
+  </select>
+	
+	<select id="findOneUser" parameterType="int" resultType="User">
+		select *from user where id = #{user_id}
+	</select>	
+
+</mapper>

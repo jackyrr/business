@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zft.entity.Cart">
+
+	<!-- 根据userID跟productID查询购物车信息 -->
+	<select id="findCartByUserIdAndProductId" parameterType="java.util.Map" resultType="com.zft.entity.Cart">
+		select cid,user_id,product_id,quantity,checked,create_time,update_time from cart where user_id=#{userid} and product_id =#{productid} 
+	</select>
+	
+	<!-- 更新购物车中商品的数量 -->
+	<update id="updateCartByUserIdAndProductId" parameterType="java.util.Map" >
+		update cart set quantity=quantity+#{quantity},update_time=now() where user_id = #{userid} and product_id = #{productid}
+	</update>
+	
+	<!-- 用户将商品添加到购物车 -->
+	<insert id="addProductIntoCartByUserIdAndProductId" parameterType="java.util.Map">
+		insert into cart (user_id,product_id,quantity,create_time,update_time) values (#{userid},#{productid},#{quantity},now(),now())
+	</insert>
+	
+	<!-- 根据商品ID增加购物车中商品的数量 -->
+	<update id="increaseCartByProductId" parameterType="java.util.Map" >
+		update cart set quantity=quantity+1,update_time=now() where user_id = #{userid} and product_id = #{productid}
+	</update>
+	
+	<!-- 根据商品ID减少购物车中商品的数量 -->
+	<update id="reduceCartByProductId" parameterType="java.util.Map" >
+		update cart set quantity=quantity-1,update_time=now() where user_id = #{userid} and product_id = #{productid}
+	</update>
+	
+	
+	<!-- 移除某个商品 -->
+	<delete id="deleteCartByProductId" parameterType="java.util.Map">
+		delete from cart where user_id=#{userid} and product_id=#{productid}
+	</delete>
+	
+	<!-- 查询总的记录数 -->
+	<select id="findCartNumber" resultType="int">
+		select count(cid) from cart
+	</select>
+	
+	<!-- 查询所有购物车商品 -->
+	<resultMap type="Cart" id="cart_user_resultMap" autoMapping="true">
+		<id column="cid" property="cid"/>		
+		<!-- 映射user对象 -->
+		
+		<association property="product" column="id" javaType="Product" autoMapping="true">
+			<id column="id" property="id"/>
+		</association>
+		
+		<association property="user" column="user_id" javaType="User" autoMapping="true">
+			<id column="id" property="id"/>
+		</association>
+	</resultMap>
+	
+	<select id="findCartByPage" parameterType="java.util.Map" resultMap="cart_user_resultMap">
+		select c.cid,c.user_id,u.username,c.product_id product_id,p.name name,p.id,p.price,c.quantity,c.checked,c.create_time,c.update_time 
+		from cart c
+		left join user u
+		on c.user_id = u.id
+		left join product p
+		on c.product_id = p.id 
+		where c.user_id=#{userid} limit #{offset},#{pageSize}
+	</select>
+	
+	<!-- 查询购物车中所有商品的数量 -->
+	<select id="findAllProductNumber" parameterType="int" resultType="int">
+		select ifnull(sum(quantity),0) from cart 
+		<where>
+			user_id = #{id}
+		</where>
+	</select>
+	
+	
+	
+	<!-- 选中某个商品、取消选中、全选、取消全选 -->
+	
+	<update id="checkOrUncheckedProduct" parameterType="java.util.Map">
+		update cart set checked = #{checked} where user_id = #{userid}
+		<if test="productid!=-1">
+			and product_id = #{productid}
+		</if> 
+	</update>
+	
+	<!-- 查询购物车已选中的商品 -->
+		<resultMap type="Cart" id="cart_resultMap" autoMapping="true">
+		<id column="cid" property="cid"/>		
+		<!-- 映射user对象 -->
+		
+		<association property="product" column="id" javaType="Product" autoMapping="true">
+			<id column="id" property="id"/>
+		</association>
+		
+		<association property="user" column="user_id" javaType="User" autoMapping="true">
+			<id column="id" property="id"/>
+		</association>
+	</resultMap>
+	
+	<select id="findCartListByUserId" parameterType="int" resultMap="cart_resultMap">
+		select c.cid,c.user_id,u.username,c.product_id product_id,p.name name,p.id,p.main_image,p.stock,p.price,c.quantity,c.checked,c.create_time,c.update_time 
+		from cart c
+		left join user u
+		on c.user_id = u.id
+		left join product p
+		on c.product_id = p.id 
+		where c.user_id=#{userid} and checked=1
+	</select>
+	<!-- 删除选中的商品 -->
+	<delete id="deleteCheckedProductByUserId" parameterType="int">
+		delete from cart where user_id = #{userid} and checked = 1
+	</delete>
+</mapper>
